@@ -4,7 +4,7 @@
 
 ### Discord Music Bot with TikTok Live Integration
 
-*A Discord music bot built with TypeScript, discord.js v14 and discord-player v7.1.x, featuring TikTok live chat integration for cross-platform music control, real-time web overlay for streaming, and advanced logging system.*
+_A Discord music bot built with TypeScript, discord.js v14 and discord-player v7.1.x, featuring TikTok live chat integration for cross-platform music control, real-time web overlay for streaming, and advanced logging system._
 
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org)
 [![Discord.js](https://img.shields.io/badge/Discord.js-v14-blue.svg)](https://discord.js.org)
@@ -23,8 +23,9 @@
 <td>
 
 **Music Player**
+
 - High-quality audio playback
-- Multiple music sources: SoundCloud, YouTube, Spotify
+- YouTube playback with yt-dlp extractor
 - Queue management
 - Music controls (play, pause, skip, stop)
 - Volume control and loop functionality
@@ -34,7 +35,8 @@
 </td>
 <td>
 
-**TikTok Integration**  
+**TikTok Integration**
+
 - Real-time bridge between TikTok and Discord
 - Cross-platform command execution
 - Automatic reconnection
@@ -47,6 +49,7 @@
 <td>
 
 **Web Overlay**
+
 - Real-time music display for streaming
 - 4 different visual presets
 - OBS browser source integration
@@ -57,6 +60,7 @@
 <td>
 
 **Configuration**
+
 - Centralized config system
 - Environment variables
 - Customizable settings
@@ -71,8 +75,8 @@
 
 ### Prerequisites
 
-> **Required:** Node.js 18+, Discord Bot Token, SoundCloud API credentials  
-> **Optional:** TikTok username for live integration  
+> **Required:** Node.js 18+, Discord Bot Token  
+> **Optional:** TikTok username for live integration, YouTube cookies for bypass bot detection
 
 ### Installation
 
@@ -102,13 +106,9 @@ Create `.env` file in root directory:
 # Discord Configuration
 DISCORD_BOT_TOKEN=your_discord_bot_token_here
 DISCORD_CHANNEL_ID=your_channel_id_here
-DISCORD_GUILD_ID=your_server_id_here  
+DISCORD_GUILD_ID=your_server_id_here
 DISCORD_VOICE_CHANNEL_ID=your_voice_channel_id_here
 COMMAND_COOLDOWN=5000
-
-# SoundCloud API credentials (optional)
-SOUNDCLOUD_CLIENT_ID=your_soundcloud_client_id
-SOUNDCLOUD_OAUTH_TOKEN=your_soundcloud_oauth_token
 
 # TikTok API Key (Optional - Recommended to avoid rate limiting)
 TIKTOK_SIGN_API_KEY=your_tiktok_api_key_here
@@ -136,6 +136,7 @@ LOG_LEVEL=info  # debug, info, success, warn, error, command, reply
    ```
 
 **Benefits of using API key:**
+
 - Higher connection limits
 - No rate limiting issues
 - More reliable TikTok bridge connections
@@ -144,36 +145,22 @@ LOG_LEVEL=info  # debug, info, success, warn, error, command, reply
 </details>
 
 <details>
-<summary><strong>Getting SoundCloud API Credentials</strong></summary>
+<summary><strong>Getting YouTube Cookies (for age-restricted content)</strong></summary>
 
-**Important**: SoundCloud API credentials are required for the bot to function properly.
 
-1. **Go to SoundCloud and login**
-   - Visit [soundcloud.com](https://soundcloud.com)
-   - Login to your account (skip if already logged in)
+1. **Install browser extension**
+   - Install [Get cookies.txt LOCALLY](https://github.com/kairi003/Get-cookies.txt-LOCALLY) for your browser
 
-2. **Open Developer Tools**
-   - Right click anywhere on the page and select "Inspect"
-   - Go to the "Network" tab in the developer tools
+2. **Go to YouTube and login**
+   - Visit [youtube.com](https://www.youtube.com)
+   - Log in to your account (use a new/throwaway account)
 
-3. **Navigate and monitor requests**
-   - Go to [soundcloud.com](https://soundcloud.com)
-   - You should see requests appearing in the network tab
+3. **Export cookies**
+   - Click the extension icon
+   - Change export format to **Netscape (cookies.txt)**
+   - Save the file as `cookies/youtube.txt` in the project root
 
-4. **Find the session request**
-   - Look for a request named "session" (you can filter by typing "session" in the filter box)
-   - Click on this request
-
-5. **Extract your credentials**
-   - Go to the "Payload" tab
-   - Find your **Client ID** in the "Query String Parameters" section
-   - Find your **OAuth token** (access_token) in the "Request Payload" section
-
-6. **Add to .env file**
-   ```env
-   SOUNDCLOUD_CLIENT_ID=your_client_id_here
-   SOUNDCLOUD_OAUTH_TOKEN=your_oauth_token_here
-   ```
+   The file will be read automatically by the yt-dlp extractor on startup.
 
 </details>
 
@@ -182,28 +169,28 @@ LOG_LEVEL=info  # debug, info, success, warn, error, command, reply
 <details>
 <summary><strong>Music Commands</strong></summary>
 
-| Command | Aliases | Description |
-|---------|---------|-------------|
-| `!play <song>` | - | Play a song or add to queue |
-| `!skip` | - | Skip current track |
-| `!pause` | - | Pause current track |
-| `!resume` | - | Resume paused track |
-| `!stop` | - | Stop music and clear queue |
-| `!queue` | `!q` | Show current queue |
-| `!nowplaying` | `!np`, `!current` | Show currently playing track |
-| `!volume <1-100>` | `!vol` | Set playback volume |
+| Command           | Aliases           | Description                  |
+| ----------------- | ----------------- | ---------------------------- |
+| `!play <song>`    | -                 | Play a song or add to queue  |
+| `!skip`           | -                 | Skip current track           |
+| `!pause`          | -                 | Pause current track          |
+| `!resume`         | -                 | Resume paused track          |
+| `!stop`           | -                 | Stop music and clear queue   |
+| `!queue`          | `!q`              | Show current queue           |
+| `!nowplaying`     | `!np`, `!current` | Show currently playing track |
+| `!volume <1-100>` | `!vol`            | Set playback volume          |
 
 </details>
 
 <details>
 <summary><strong>TikTok Bridge Commands</strong></summary>
 
-| Command | Aliases | Description |
-|---------|---------|-------------|
-| `!tiktok` | `!tt`, `!bridge` | Show TikTok bridge status |
-| `!tiktok stats` | - | Show detailed statistics |
-| `!tiktok disconnect` | - | Disconnect TikTok bridge |
-| `!tiktok reconnect` | - | Reconnect TikTok bridge |
+| Command              | Aliases          | Description               |
+| -------------------- | ---------------- | ------------------------- |
+| `!tiktok`            | `!tt`, `!bridge` | Show TikTok bridge status |
+| `!tiktok stats`      | -                | Show detailed statistics  |
+| `!tiktok disconnect` | -                | Disconnect TikTok bridge  |
+| `!tiktok reconnect`  | -                | Reconnect TikTok bridge   |
 
 </details>
 
@@ -213,15 +200,15 @@ Kunang-Kunang features a comprehensive logging system for monitoring and debuggi
 
 ### Log Levels
 
-| Level | Description | Use Case |
-|-------|-------------|----------|
-| `debug` | Detailed debugging information | Development and troubleshooting |
-| `info` | General information | Normal operation monitoring |
-| `success` | Successful operations | Confirming important actions |
-| `warn` | Warning messages | Potential issues |
-| `error` | Error messages | Failures and exceptions |
-| `command` | Command executions | User command tracking |
-| `reply` | Bot responses | Response monitoring |
+| Level     | Description                    | Use Case                        |
+| --------- | ------------------------------ | ------------------------------- |
+| `debug`   | Detailed debugging information | Development and troubleshooting |
+| `info`    | General information            | Normal operation monitoring     |
+| `success` | Successful operations          | Confirming important actions    |
+| `warn`    | Warning messages               | Potential issues                |
+| `error`   | Error messages                 | Failures and exceptions         |
+| `command` | Command executions             | User command tracking           |
+| `reply`   | Bot responses                  | Response monitoring             |
 
 ### Configuration
 
@@ -238,9 +225,9 @@ LOG_LEVEL=warn   # Show only warnings and errors
 The bot logs activities across multiple components:
 
 - **Bot Initialization**: Startup sequence and component loading
-- **Command Processing**: User commands and TikTok bridge commands  
+- **Command Processing**: User commands and TikTok bridge commands
 - **Music Operations**: Playback, queue management, and streaming
-- **Extractor Activities**: Music source detection and processing (YouTube, SoundCloud, Spotify)
+- **Extractor Activities**: Music source detection and processing (YouTube via yt-dlp)
 - **Web Overlay**: Server operations and API requests
 - **TikTok Integration**: Bridge connections and message processing
 - **Error Handling**: Failures and recovery attempts
@@ -269,6 +256,7 @@ The bot logs activities across multiple components:
 ### Rate Limiting & API Key
 
 **Important**: Without an API key, you may encounter rate limiting errors like:
+
 ```
 Connection failed: [Rate Limited] (rate_limit_room_id_day) Too many connections started, try again later.
 ```
@@ -303,12 +291,12 @@ Kunang-Kunang includes a built-in web overlay system for streamers, displaying r
 
 ### Available Presets
 
-| Preset | Style | Theme | Best For |
-|--------|-------|--------|----------|
-| 1 | Vinyl | Classic dark with circular album art | Retro/music streams |
-| 2 | Crystal Glass | Modern transparent glassmorphism | Professional/clean streams |
-| 3 | Minimal Line | Geometric with green accents | Gaming/tech streams |
-| 4 | Neon Pulse | Cyberpunk with cyan/magenta glow | Tech/coding streams |
+| Preset | Style         | Theme                                | Best For                   |
+| ------ | ------------- | ------------------------------------ | -------------------------- |
+| 1      | Vinyl         | Classic dark with circular album art | Retro/music streams        |
+| 2      | Crystal Glass | Modern transparent glassmorphism     | Professional/clean streams |
+| 3      | Minimal Line  | Geometric with green accents         | Gaming/tech streams        |
+| 4      | Neon Pulse    | Cyberpunk with cyan/magenta glow     | Tech/coding streams        |
 
 **Custom Overlay**
 
@@ -349,49 +337,49 @@ You can customize the overlay by creating your own design using the API endpoint
 
 ```typescript
 export default {
-    // Bot behavior
-    bot: {
-        prefix: '!',                    // Command prefix
-        activity: {
-            name: 'Kunang-Kunang Music', // Bot activity text
-            type: 2                     // Activity type (LISTENING)
-        }
+  // Bot behavior
+  bot: {
+    prefix: "!", // Command prefix
+    activity: {
+      name: "Kunang-Kunang Music", // Bot activity text
+      type: 2, // Activity type (LISTENING)
     },
-    
-    // Music player settings
-    player: {
-        maxQueueSize: 100,              // Maximum songs in queue        
-        selfDeaf: true,                 // Bot deafens itself in voice channels
-        volume: 100,                    // Default volume (0-100)
-        quality: 'high',                // Audio quality: low, medium, high
-        
-        // Leave options for voice channel
-        leaveOptions: {
-            leaveOnEnd: true,          // Leave after queue finishes
-            leaveOnEndCooldown: 300000,  // 5 minutes
-            leaveOnEmpty: true,        // Leave when voice channel is empty
-            leaveOnEmptyCooldown: 300000, // 5 minutes
-            leaveOnStop: true,         // Leave when player is stopped
-            leaveOnStopCooldown: 300000   // 5 minutes
-        }
-    },
-    
-    // TikTok integration settings
-    tiktok: {
-        username: '',                   // TikTok username for live integration
-        maxReconnectAttempts: 3,        // Max reconnection attempts
-        reconnectDelay: 5000,           // Delay between reconnection attempts (ms)
-        enabled: false                  // Enable/disable TikTok integration
-    },
+  },
 
-    // Web overlay settings
-    overlay: {
-        enabled: true,                  // Enable/disable overlay server
-        port: 3000,                    // Server port for overlay
-        pollingInterval: 1000,          // Update frequency in ms
-        maxQueueDisplay: 3,             // Number of queue items to display
-        preset: 2                       // Visual preset: 1, 2, 3, or 4
-    }
+  // Music player settings
+  player: {
+    maxQueueSize: 100, // Maximum songs in queue
+    selfDeaf: true, // Bot deafens itself in voice channels
+    volume: 100, // Default volume (0-100)
+    quality: "high", // Audio quality: low, medium, high
+
+    // Leave options for voice channel
+    leaveOptions: {
+      leaveOnEnd: true, // Leave after queue finishes
+      leaveOnEndCooldown: 300000, // 5 minutes
+      leaveOnEmpty: true, // Leave when voice channel is empty
+      leaveOnEmptyCooldown: 300000, // 5 minutes
+      leaveOnStop: true, // Leave when player is stopped
+      leaveOnStopCooldown: 300000, // 5 minutes
+    },
+  },
+
+  // TikTok integration settings
+  tiktok: {
+    username: "", // TikTok username for live integration
+    maxReconnectAttempts: 3, // Max reconnection attempts
+    reconnectDelay: 5000, // Delay between reconnection attempts (ms)
+    enabled: false, // Enable/disable TikTok integration
+  },
+
+  // Web overlay settings
+  overlay: {
+    enabled: true, // Enable/disable overlay server
+    port: 3000, // Server port for overlay
+    pollingInterval: 1000, // Update frequency in ms
+    maxQueueDisplay: 3, // Number of queue items to display
+    preset: 2, // Visual preset: 1, 2, 3, or 4
+  },
 };
 ```
 
@@ -423,9 +411,7 @@ src/
 │   └── discordEvents.ts
 ├── extractors/
 │   ├── index.ts
-│   ├── SoundCloudExtractor.ts
-│   ├── YouTubeExtractor.ts
-│   └── SpotifyBridgeExtractor.ts
+│   └── GoogleVideoExtractor.ts
 ├── utils/
 │   ├── logging.ts
 │   ├── helpers.ts
@@ -459,16 +445,16 @@ src/
 2. Follow existing command structure:
 
 ```typescript
-import { Message } from 'discord.js';
-import { Command } from '../types/command.js';
+import { Message } from "discord.js";
+import { Command } from "../types/command.js";
 
 const commandName: Command = {
-    name: 'commandname',
-    aliases: ['alias1', 'alias2'],
-    description: 'Command description',
-    execute: async (message: Message, args: string[], bot: any): Promise<any> => {
-        // Command logic here
-    }
+  name: "commandname",
+  aliases: ["alias1", "alias2"],
+  description: "Command description",
+  execute: async (message: Message, args: string[], bot: any): Promise<any> => {
+    // Command logic here
+  },
 };
 
 export default commandName;
@@ -480,18 +466,18 @@ export default commandName;
 2. Add export to `src/extractors/index.ts`:
 
 ```typescript
-import { YourExtractor } from './YourExtractor.js';
+import { YourExtractor } from "./YourExtractor.js";
 
 export {
-    // ... existing exports
-    YourExtractor
+  // ... existing exports
+  YourExtractor,
 };
 ```
 
 3. Register in `src/index.ts`:
 
 ```typescript
-import { YourExtractor } from './extractors/index.js';
+import { YourExtractor } from "./extractors/index.js";
 await this.player.extractors.register(YourExtractor, {});
 ```
 
@@ -500,8 +486,8 @@ await this.player.extractors.register(YourExtractor, {});
 Add event handlers in `src/events/discordEvents.ts`:
 
 ```typescript
-bot.player.events.on('eventName', (queue, data) => {
-    // Handle event
+bot.player.events.on("eventName", (queue, data) => {
+  // Handle event
 });
 ```
 
@@ -531,6 +517,7 @@ Contributions are welcome! Please open an issue or submit a pull request.
 ## Support
 
 For support and questions:
+
 - Create an issue on GitHub
 - Check existing documentation
 - I also speak Indonesian, so don't hesitate to make an issue or ask questions in Indonesian.
@@ -538,7 +525,6 @@ For support and questions:
 ---
 
 <div align="center">
-
 
 **Kunang-Kunang bot music - adioss**
 
